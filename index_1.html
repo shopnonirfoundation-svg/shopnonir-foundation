@@ -1,0 +1,313 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOPNIR Foundation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+
+        nav a:hover {
+            color: #3498db;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://via.placeholder.com/1200x400');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .team-grid, .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .team-member, .activity-item {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .team-member img, .activity-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .contact-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .contact-form button {
+            background-color: #3498db;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .contact-form button:hover {
+            background-color: #2980b9;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">SHOPNIR Foundation</div>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#people">People</a></li>
+                <li><a href="#activity">Activity</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <h1>Welcome to SHOPNIR Foundation</h1>
+        <p>Empowering communities through education, health, and sustainable development.</p>
+    </section>
+
+    <section id="about" class="section">
+        <h2>About Us</h2>
+        <p>The SHOPNIR Foundation is dedicated to uplifting marginalized communities by providing access to quality education, healthcare, and sustainable livelihoods. Our mission is to foster empowerment and create lasting change through community-driven initiatives.</p>
+        <p>Founded in 2020, we have impacted thousands of lives through our programs in rural and urban areas, focusing on equity, inclusion, and sustainable development.</p>
+    </section>
+
+    <section id="people" class="section">
+        <h2>Our Team</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="https://via.placeholder.com/250x200" alt="Team Member 1">
+                <h3>Jane Doe</h3>
+                <p>Founder & Director</p>
+                <p>Jane leads with a passion for social change, with over 15 years of experience in nonprofit management.</p>
+            </div>
+            <div class="team-member">
+                <img src="https://via.placeholder.com/250x200" alt="Team Member 2">
+                <h3>John Smith</h3>
+                <p>Program Manager</p>
+                <p>John oversees our education initiatives, ensuring impactful delivery of our programs.</p>
+            </div>
+            <div class="team-member">
+                <img src="https://via.placeholder.com/250x200" alt="Team Member 3">
+                <h3>Sarah Lee</h3>
+                <p>Community Outreach Coordinator</p>
+                <p>Sarah connects with communities to understand their needs and align our efforts.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="activity" class="section">
+        <h2>Our Activities</h2>
+        <div class="activity-grid">
+            <div class="activity-item">
+                <img src="https://via.placeholder.com/250x200" alt="Activity 1">
+                <h3>Education Programs</h3>
+                <p>We provide free schooling and vocational training to underprivileged children and youth.</p>
+            </div>
+            <div class="activity-item">
+                <img src="https://via.placeholder.com/250x200" alt="Activity 2">
+                <h3>Healthcare Initiatives</h3>
+                <p>Our mobile clinics deliver essential healthcare services to remote communities.</p>
+            </div>
+            <div class="activity-item">
+                <img src="https://via.placeholder.com/250x200" alt="Activity 3">
+                <h3>Sustainable Development</h3>
+                <p>We promote eco-friendly practices and support local entrepreneurship.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section">
+        <h2>Contact Us</h2>
+        <p>Reach out to us for inquiries, partnerships, or to get involved!</p>
+        <div class="contact-form">
+            <form>
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <label for="message">Message</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+        <p>Email: info@shopnirfoundation.org</p>
+        <p>Phone: +1 (555) 123-4567</p>
+        <p>Address: 123 Hope Street, City, Country</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 SHOPNIR Foundation. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Form submission (placeholder for actual functionality)
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
